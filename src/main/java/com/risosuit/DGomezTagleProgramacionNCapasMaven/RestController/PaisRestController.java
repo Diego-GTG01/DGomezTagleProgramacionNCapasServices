@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Result;
 
-
 @RestController
-@RequestMapping("api/rol")
-public class RolRestController {
+@RequestMapping("api/pais")
+public class PaisRestController {
     @Autowired
-    private RolJPADAOImplementation rolJPADAOImplementation;
+    private PaisJPADAOImplementation paisJPADAOImplementation;
 
     @GetMapping
     public ResponseEntity GetAll() {
         try {
-            Result Result = rolJPADAOImplementation.GetAll();
+            Result Result = paisJPADAOImplementation.GetAll();
             if (Result.Correct) {
                 if (Result.Objects != null) {
                     return ResponseEntity.ok(Result);
@@ -39,4 +39,5 @@ public class RolRestController {
         }
 
     }
+
 }

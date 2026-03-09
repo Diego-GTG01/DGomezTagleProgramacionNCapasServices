@@ -39,7 +39,7 @@ public class UsuarioRestController {
             Result Result = usuarioJPADAOImplementation.GetAll();
             if (Result.Correct) {
                 if (Result.Objects != null || !Result.Objects.isEmpty()) {
-                    return ResponseEntity.ok(Result.Objects);
+                    return ResponseEntity.ok(Result);
                 } else {
                     return ResponseEntity.noContent().build();
                 }
@@ -58,7 +58,7 @@ public class UsuarioRestController {
             Result Result = usuarioJPADAOImplementation.GetById(idUsuario);
             if (Result.Correct) {
                 if (Result.Object != null) {
-                    return ResponseEntity.ok(Result.Object);
+                    return ResponseEntity.ok(Result);
                 } else {
                     return ResponseEntity.noContent().build();
                 }
@@ -67,6 +67,25 @@ public class UsuarioRestController {
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
+        }
+
+    }
+
+    @PostMapping("busqueda")
+    public ResponseEntity Busqueda(@RequestBody Usuario usuario) {
+
+        try {
+            Result Result = usuarioJPADAOImplementation.Busqueda(usuario);
+            if (Result.Correct) {
+                return ResponseEntity.ok(Result);
+
+            } else {
+                return ResponseEntity.badRequest().body(Result.MessageException);
+            }
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
 
     }
@@ -138,12 +157,25 @@ public class UsuarioRestController {
 
     }
 
-    // CargaMasiva
-    // UpdateImagen
-    // BajaLogica
+    @PatchMapping("imagen")
+    public ResponseEntity UpdateImagen(@RequestBody Usuario usuario) {
+        try {
+            Result Result = usuarioJPADAOImplementation.UpdateImagen(usuario);
+            if (Result.Correct) {
+                return ResponseEntity.ok(Result);
+
+            } else {
+                return ResponseEntity.badRequest().body(Result.MessageException);
+            }
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 
     @PatchMapping("status/{idUsuario}")
-    public ResponseEntity UpdateActivo(@PathVariable("idUsuario")int idUsuario) {
+    public ResponseEntity UpdateActivo(@PathVariable("idUsuario") int idUsuario) {
         try {
             Result Result = usuarioJPADAOImplementation.UpdateActivo(idUsuario);
             if (Result.Correct) {
@@ -151,7 +183,7 @@ public class UsuarioRestController {
 
             } else {
                 return ResponseEntity.badRequest().body(Result.MessageException);
-            }
+                }
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

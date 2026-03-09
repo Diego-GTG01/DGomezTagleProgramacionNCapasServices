@@ -261,6 +261,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             List<Usuario> usuariosJPA = query.getResultList();
 
             Result.Objects = new ArrayList<>(usuariosJPA);
+            Result.Correct =true;
 
         } catch (Exception ex) {
             Result.Correct = false;
