@@ -4,8 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,47 +23,69 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idusuario")
+
     private int IdUsuario;
     @Lob
     @Column(name = "imagen")
     private String ImagenFile;
-
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese Solo letras, números y espacios")
     @Column(name = "username")
     private String UserName;
-
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
     @Column(name = "nombre")
     private String Nombre;
-
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
     @Column(name = "apellidopaterno")
     private String ApellidoPaterno;
-
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
     @Column(name = "apellidomaterno")
     private String ApellidoMaterno;
-
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Ingrese un correo valido")
     @Column(name = "email")
     private String Email;
-
+    @NotEmpty(message = "Este campo no Puede estar vacio")
     @Column(name = "password")
     private String Password;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "Debes seleccionar una fecha")
+
     @Column(name = "fechanacimiento")
     private LocalDate FechaNacimiento;
+    @Size(min = 1, max = 2, message = "Debe tener más de 3 caracteres")
+    @NotEmpty(message = "Debe Seleccionar una Opción")
 
     @Column(name = "sexo")
     private String Sexo;
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese solo Digitos")
+    @Size(min = 10, max = 10, message = "Debe ser maximo de 10 digitos")
 
     @Column(name = "telefono")
     private String Telefono;
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese solo Digitos")
+    @Size(min = 10, max = 10, message = "Debe ser maximo de 10 digitos")
 
     @Column(name = "celular")
     private String Celular;
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    @Size(max = 18, message = "Debe tener más de 3 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese una CURP valida")
 
     @Column(name = "curp")
     private String CURP;
@@ -69,9 +97,11 @@ public class Usuario {
     private LocalDateTime UltimoAcceso;
     @ManyToOne
     @JoinColumn(name = "idrol")
+    @Valid
     public Rol Rol;
-    
+
     @OneToMany(mappedBy = "Usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Valid
     public List<Direccion> Direcciones;
 
     public Usuario() {

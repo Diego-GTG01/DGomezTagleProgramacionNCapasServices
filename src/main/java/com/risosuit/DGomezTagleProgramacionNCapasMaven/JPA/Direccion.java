@@ -2,7 +2,6 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 public class Direccion {
@@ -20,21 +20,23 @@ public class Direccion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iddireccion")
     private int IdDireccion;
-    
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+
     @Column(name = "calle")
     private String Calle;
+    @NotEmpty(message = "Este campo no Puede estar vacio")
 
     @Column(name = "numeroexterior")
     private String NumeroExterior;
 
     @Column(name = "numerointerior")
     private String NumeroInterior;
-
+    @Valid
     @ManyToOne
     @JoinColumn(name = "idcolonia")
     public Colonia Colonia;
 
-    @ManyToOne(fetch = FetchType.LAZY)// carga Perezosa
+    @ManyToOne(fetch = FetchType.LAZY) // carga Perezosa
     @JoinColumn(name = "idusuario")
     @JsonIgnore
     public Usuario Usuario;

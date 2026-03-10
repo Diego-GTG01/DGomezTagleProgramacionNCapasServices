@@ -5,12 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
 
 @Entity
 public class Pais {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idpais")
+    @Min(value = 1, message = "Selecciona una opción")
     private int IdPais;
     
     @Column(name = "nombre")

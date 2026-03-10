@@ -7,12 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Min;
 
 @Entity
 public class Estado {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idestado")
+    @Min(value = 1, message = "Selecciona una opción")
     private int IdEstado;
 
     @Column(name = "nombre")

@@ -5,12 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
 
 @Entity
 public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idrol")
+    @Min(value = 1, message = "Selecciona una opción")
     private int IdRol;
     @Column(name = "nombre")
     private String Nombre;
