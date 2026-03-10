@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 @Entity
@@ -28,6 +29,7 @@ public class Colonia {
 
     @ManyToOne
     @JoinColumn(name = "idmunicipio")
+    @Valid
     public Municipio Municipio;
 
     public Colonia() {

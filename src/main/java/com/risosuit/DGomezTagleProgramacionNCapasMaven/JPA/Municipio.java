@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 @Entity
@@ -24,6 +25,7 @@ public class Municipio {
     
     @ManyToOne
     @JoinColumn(name = "idestado")
+    @Valid
     public Estado Estado;
 
     public Municipio() {
