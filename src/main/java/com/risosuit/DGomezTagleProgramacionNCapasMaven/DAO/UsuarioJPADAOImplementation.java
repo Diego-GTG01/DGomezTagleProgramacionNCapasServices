@@ -203,6 +203,9 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
                 UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
                 UsuarioJPA.setActivo(1);
+                for (Direccion direccion : UsuarioJPA.Direcciones) {
+                    direccion.Usuario = (UsuarioJPA);
+                }
                 i++;
                 entityManager.persist(UsuarioJPA);
                 if (i % batchSize == 0) {
@@ -210,8 +213,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                     entityManager.clear();
                 }
             }
-            entityManager.flush();
-            entityManager.clear();
+
             Result.Correct = true;
 
         } catch (Exception ex) {
@@ -261,7 +263,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             List<Usuario> usuariosJPA = query.getResultList();
 
             Result.Objects = new ArrayList<>(usuariosJPA);
-            Result.Correct =true;
+            Result.Correct = true;
 
         } catch (Exception ex) {
             Result.Correct = false;

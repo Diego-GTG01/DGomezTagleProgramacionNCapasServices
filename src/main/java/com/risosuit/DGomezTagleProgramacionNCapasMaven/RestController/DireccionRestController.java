@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionJPAImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Result;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/direccion")
@@ -43,13 +46,23 @@ public class DireccionRestController {
     }
 
     @PostMapping("{idUsuario}")
-    public ResponseEntity Add(@PathVariable("idUsuario") int idUsuario, @RequestBody Direccion direccion) {
+    public ResponseEntity Add(@PathVariable("idUsuario") int idUsuario, @Valid @RequestBody Direccion direccion,
+            BindingResult bindingResult) {
+        Result Result = new Result();
         try {
-            Result Result = direccionJPAImplementation.Add(direccion, idUsuario);
+            if (bindingResult.hasErrors()) {
+                Result.Correct = false;
+                Result.MessageException = " Error de validacion: " + HttpStatus.BAD_REQUEST;
+                Result.Object = direccion;
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(Result);
+            }
+            Result = direccionJPAImplementation.Add(direccion, idUsuario);
             if (Result.Correct) {
                 return ResponseEntity.ok(Result);
             } else {
-                return ResponseEntity.badRequest().body(Result.MessageException);
+                return ResponseEntity.badRequest().body(Result);
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
@@ -57,10 +70,20 @@ public class DireccionRestController {
     }
 
     @PutMapping("{idUsuario}")
-    public ResponseEntity Update(@PathVariable("idUsuario") int idUsuario, @RequestBody Direccion direccion) {
+    public ResponseEntity Update(@PathVariable("idUsuario") int idUsuario, 
+    @Valid @RequestBody Direccion direccion,BindingResult bindingResult) {
         try {
             try {
-                Result Result = direccionJPAImplementation.Update(direccion, idUsuario);
+                Result Result = new Result();
+                if (bindingResult.hasErrors()) {
+                    Result.Correct = false;
+                    Result.MessageException = " Error de validacion: " + HttpStatus.BAD_REQUEST;
+                    Result.Object = direccion;
+                    return ResponseEntity
+                            .status(HttpStatus.BAD_REQUEST)
+                            .body(Result);
+                }
+                Result = direccionJPAImplementation.Update(direccion, idUsuario);
                 if (Result.Correct) {
                     return ResponseEntity.ok(Result);
 
@@ -76,7 +99,7 @@ public class DireccionRestController {
             return ResponseEntity.internalServerError().body(e);
         }
     }
-    
+
     @DeleteMapping("{idDireccion}")
     public ResponseEntity Delete(@PathVariable("idDireccion") int idDireccion) {
         try {
