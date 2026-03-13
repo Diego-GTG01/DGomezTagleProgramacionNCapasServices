@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.ui.Model;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -54,7 +55,16 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Result;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.ValidationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+@Tag(name = "Usuario", description = "Operaciones relacionadas con la gestión de usuarios")
 
 @RestController
 @RequestMapping("api/usuario")
@@ -65,6 +75,13 @@ public class UsuarioRestController {
     @Autowired
     private ValidationService validationservice;
 
+    @Operation(summary = "Obtener todos los usuarios", description = "Retorna la lista de todos los usuarios registrados en el sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de Usuarios obtenido correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "204", description = "Lista de Usuarios vacía", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
     @GetMapping
     public ResponseEntity GetAll() {
         try {
@@ -76,7 +93,7 @@ public class UsuarioRestController {
                     return ResponseEntity.noContent().build();
                 }
             } else {
-                return ResponseEntity.badRequest().body(Result.MessageException);
+                return ResponseEntity.badRequest().body(Result);
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e);
@@ -84,6 +101,14 @@ public class UsuarioRestController {
 
     }
 
+    @Operation(summary = "Obtiene un usuario por su ID", description = "Retorna los detalles de un usuario específico según su ID")
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario obtenido correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "204", description = "Usuario No existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
     @GetMapping("{idUsuario}")
     public ResponseEntity GetById(@PathVariable("idUsuario") int idUsuario) {
         try {
@@ -103,16 +128,29 @@ public class UsuarioRestController {
 
     }
 
+    @Operation(summary = "Obtiene la lista de usuario que cumplan las condiciones", description = "Retorna la lista de usuarios que cumplan las condiciones enviadas en el body(Nombre, Apellido Paterno, Apellido Materno, sexo, idrol)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de Usuarios obtenido correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "204", description = "Lista de Usuarios vacía", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
+
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Objeto usuario con los criterios de búsqueda", required = true)
     @PostMapping("busqueda")
     public ResponseEntity Busqueda(@RequestBody Usuario usuario) {
 
         try {
             Result Result = usuarioJPADAOImplementation.Busqueda(usuario);
             if (Result.Correct) {
-                return ResponseEntity.ok(Result);
+                if (Result.Objects != null || !Result.Objects.isEmpty()) {
+                    return ResponseEntity.ok(Result);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Result);
+                }
 
             } else {
-                return ResponseEntity.badRequest().body(Result.MessageException);
+                return ResponseEntity.badRequest().body(Result);
             }
         } catch (Exception e) {
             return ResponseEntity
@@ -122,11 +160,23 @@ public class UsuarioRestController {
 
     }
 
+    @Operation(summary = "Agregar un nuevo usuario con imagen opcional", description = "Este endpoint permite crear un nuevo usuario. "
+            +
+            "Se puede subir una imagen en formato JPG o PNG como parte del formulario.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario agregado correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error de validación o archivo no permitido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> Add(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Objeto usuario para guardar", required = true)
+
             @Valid @RequestPart("usuario") Usuario usuario,
             BindingResult bindingResult,
-            @RequestPart(name = "imagen", required = false) MultipartFile imagen, Model model) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Imagen del usuario en formato JPG o PNG (opcional)", required = false, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(type = "string", format = "binary"))) @RequestPart(name = "imagen", required = false) MultipartFile imagen,
+            Model model) {
         Result result = null;
 
         if (bindingResult.hasErrors()) {
@@ -188,8 +238,18 @@ public class UsuarioRestController {
         }
     }
 
+    @Operation(summary = "Actualiza un usuario", description = "Actualiza los datos de un usuario existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente"),
+            @ApiResponse(responseCode = "204", description = "Usuario No existe"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud/ Validación"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+
     @PutMapping
-    public ResponseEntity Update(@Valid @RequestBody Usuario usuario, BindingResult bindingResult) {
+    public ResponseEntity Update(
+            @RequestPart(name = "usuario", required = true) @Valid @RequestBody Usuario usuario,
+            BindingResult bindingResult) {
         Result Result = null;
         if (bindingResult.hasErrors()) {
             Result = new Result();
@@ -233,6 +293,13 @@ public class UsuarioRestController {
 
     }
 
+    @Operation(summary = "Elimina un usuario", description = "Elimina TODOS los datos de un Usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "El usuario Fue eliminado Correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
+
     @DeleteMapping("{idUsuario}")
     public ResponseEntity Delete(@PathVariable("idUsuario") int idUsuario) {
 
@@ -253,8 +320,19 @@ public class UsuarioRestController {
     }
 
     @PatchMapping(value = "imagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity UpdateImagen(@RequestParam("idUsuario") int idUsuario,
-            @RequestPart(name = "imagen", required = false) MultipartFile imagen) {
+    @Operation(summary = "Actualizar la imagen de un usuario", description = "Este endpoint permite actualizar la imagen de un usuario existente. "
+            +
+            "La imagen debe ser JPG o PNG y el usuario se identifica por su id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Imagen actualizada correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error al actualizar la imagen", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
+    public ResponseEntity UpdateImagen(
+            @io.swagger.v3.oas.annotations.Parameter(description = "ID del usuario al que se actualizará la imagen", required = true) @RequestParam("idUsuario") int idUsuario,
+
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Imagen del usuario en formato JPG o PNG (opcional)", required = false, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(type = "string", format = "binary"))) @RequestPart(name = "imagen", required = false) MultipartFile imagen) {
+
         try {
             Usuario usuario = new Usuario();
             usuario.setIdUsuario(idUsuario);
@@ -266,7 +344,6 @@ public class UsuarioRestController {
             Result Result = usuarioJPADAOImplementation.UpdateImagen(usuario);
             if (Result.Correct) {
                 return ResponseEntity.ok(Result);
-
             } else {
                 return ResponseEntity.badRequest().body(Result);
             }
@@ -277,6 +354,12 @@ public class UsuarioRestController {
         }
     }
 
+    @Operation(summary = "Actualizar el estado de un usuario", description = "Este endpoint permite actualizar el estado de un usuario existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status Actualizado Correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error al actualizar el status", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
     @PatchMapping("status/{idUsuario}")
     public ResponseEntity UpdateActivo(@PathVariable("idUsuario") int idUsuario) {
         try {
@@ -296,7 +379,18 @@ public class UsuarioRestController {
     }
 
     @PostMapping(value = "validarcarga", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity ValidarArchivo(@RequestPart(name = "archivo") MultipartFile archivo) {
+    @Operation(summary = "Validar archivo de usuarios", description = "Este endpoint permite validar un archivo de usuarios en formato TXT o XLSX. "
+            +
+            "Si el archivo contiene errores de validación, se retornan los errores. " +
+            "Si el archivo es válido, se devuelve un hash del archivo procesado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Archivo validado correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Errores encontrados en el archivo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
+    public ResponseEntity ValidarArchivo(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Archivo de usuarios en formato TXT o XLSX", required = true, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(name = "archivo", type = "string", format = "binary"))) @RequestPart(name = "archivo") MultipartFile archivo) {
+
         Result Result = null;
         try {
             if (archivo != null) {
@@ -320,7 +414,6 @@ public class UsuarioRestController {
 
                 List<ErroresArchivo> errores = ValidarDatos(Usuarios);
                 if (errores.isEmpty()) {
-                    System.out.println("Sin errores ");
                     Result = new Result();
                     Result.Correct = true;
                     Result.MessageException = "Archivo validado correctamente";
@@ -330,7 +423,6 @@ public class UsuarioRestController {
                     return ResponseEntity.ok().body(Result);
 
                 } else {
-                    System.out.println(errores);
                     List<String> listaStrings = new ArrayList<>();
                     for (ErroresArchivo error : errores) {
                         listaStrings.add(error.toString());
@@ -350,14 +442,24 @@ public class UsuarioRestController {
             System.out.println(e.getLocalizedMessage());
             return ResponseEntity.internalServerError().body(e);
         }
-
     }
 
     @PostMapping("procesarcarga")
-    public ResponseEntity ProcesarArchivo(@RequestParam("key") String key) {
+    @Operation(summary = "Procesar archivo previamente validado", description = "Este endpoint procesa un archivo de usuarios previamente validado mediante su clave (key). "
+            +
+            "Se valida que el archivo no haya sido procesado previamente y que el tiempo de procesamiento no haya expirado. "
+            +
+            "El archivo puede ser TXT o XLSX y se insertan todos los usuarios en la base de datos.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Archivo procesado correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Error al procesar el archivo (clave no encontrada, archivo ya procesado, tiempo expirado, errores en datos)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"error\": \"Mensaje de excepción\"}")))
+    })
+    public ResponseEntity ProcesarArchivo(
+            @Parameter(description = "Clave del archivo previamente validado", required = true) @RequestParam("key") String key) {
+
         Result Result = null;
         try {
-
             String[] campos = buscarPorKey(key);
             String rutaArchivo = "";
             if (campos != null && campos.length > 1) {
@@ -370,6 +472,7 @@ public class UsuarioRestController {
                     Result.MessageException = "Este archivo ya ha sido procesado";
                     return ResponseEntity.badRequest().body(Result);
                 }
+
                 LocalDateTime fechaHora = LocalDateTime.now();
                 LocalDateTime fechaHoraLog = LocalDateTime.parse(campos[3].trim(),
                         DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
@@ -380,16 +483,13 @@ public class UsuarioRestController {
                     Result.MessageException = "El tiempo para procesar este archivo ha expirado";
                     return ResponseEntity.badRequest().body(Result);
                 }
+
                 String extension = rutaArchivo.split("\\.")[1];
                 List<Usuario> Usuarios = null;
                 if (extension.contains("txt")) {
-
                     Usuarios = LecturaArchivoTxt(new File(rutaArchivo));
-
                 } else if (extension.contains("xlsx")) {
-
                     Usuarios = LecturaArchivoXLSX(new File(rutaArchivo));
-
                 }
 
                 Result = usuarioJPADAOImplementation.AddAll(Usuarios);
@@ -397,7 +497,6 @@ public class UsuarioRestController {
                     RegisterLog(key, rutaArchivo, "PROCESADO", "ARCHIVO PROCESADO CORRECTAMENTE");
                     return ResponseEntity.ok(Result);
                 } else {
-
                     RegisterLog(key, rutaArchivo, "ERROR AL PROCESAR", "ARCHIVO CON ERRORES AL PROCESAR");
                     return ResponseEntity.badRequest().body(Result);
                 }
@@ -407,16 +506,13 @@ public class UsuarioRestController {
                 Result.Correct = false;
                 Result.MessageException = "Clave no encontrada";
                 RegisterLog(key, rutaArchivo, "ERROR AL PROCESAR", "CLAVE NO ENCONTRADA");
-
                 return ResponseEntity.badRequest().body(Result);
             }
 
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
             return ResponseEntity.internalServerError().body(e);
-
         }
-
     }
 
     // METODOS AUXILIARES
@@ -466,7 +562,7 @@ public class UsuarioRestController {
                         direccion.Colonia.Municipio.Estado.Pais.setIdPais(1);
                     }
 
-                    Usuario.getDirecciones().add(direccion);
+                    Usuario.Direcciones.add(direccion);
                     Usuarios.add(Usuario);
 
                 } catch (Exception e) {

@@ -19,8 +19,9 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionJPAImplement
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Result;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
+@Tag(name = "Direccion", description = "Operaciones relacionadas con la gestión de direcciones")
 @RestController
 @RequestMapping("api/direccion")
 public class DireccionRestController {

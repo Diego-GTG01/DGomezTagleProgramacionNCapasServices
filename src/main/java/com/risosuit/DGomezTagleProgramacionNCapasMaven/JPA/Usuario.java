@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,19 +24,67 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 
+@Schema(
+    description = "Modelo de usuario",
+    example = "{\n" +
+            "  \"Activo\": 1,\n" +
+            "  \"ApellidoMaterno\": \"Sanchez\",\n" +
+            "  \"ApellidoPaterno\": \"Torres\",\n" +
+            "  \"CURP\": \"TOSA961125MDFRRS04\",\n" +
+            "  \"Celular\": \"1234567890\",\n" +
+            "  \"Direcciones\": [\n" +
+            "    {\n" +
+            "      \"Calle\": \"Avenida San Sebastian\",\n" +
+            "      \"Colonia\": {\n" +
+            "        \"Municipio\": {\n" +
+            "          \"Estado\": {\n" +
+            "            \"Pais\": {\n" +
+            "              \"IdPais\": 1,\n" +
+            "              \"Nombre\": \"México\"\n" +
+            "            },\n" +
+            "            \"IdEstado\": 1,\n" +
+            "            \"Nombre\": \"México\"\n" +
+            "          },\n" +
+            "          \"IdMunicipio\": 54,\n" +
+            "          \"Nombre\": \"Zumpango\"\n" +
+            "        },\n" +
+            "        \"CodigoPostal\": 55600,\n" +
+            "        \"IdColonia\": 8243,\n" +
+            "        \"Nombre\": \"San Sebastián\"\n" +
+            "      },\n" +
+            "      \"IdDireccion\": 0,\n" +
+            "      \"NumeroExterior\": \"17\",\n" +
+            "      \"NumeroInterior\": \"4B\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"Email\": \"ana.torres@email.com\",\n" +
+            "  \"FechaNacimiento\": \"1996-11-25\",\n" +
+            "  \"IdUsuario\": 238,\n" +
+            "  \"ImagenFile\": null,\n" +
+            "  \"Nombre\": \"Ana\",\n" +
+            "  \"Password\": \"Ana2024\",\n" +
+            "  \"Rol\": {\n" +
+            "    \"IdRol\": 1,\n" +
+            "    \"Nombre\": \"Administrador\"\n" +
+            "  },\n" +
+            "  \"Sexo\": \"FF\",\n" +
+            "  \"Telefono\": \"5555555555\",\n" +
+            "  \"UltimoAcceso\": \"2026-03-09T16:13:19.698834\",\n" +
+            "  \"UserName\": \"Anatorres\"\n" +
+            "}"
+)
 @Entity
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idusuario")
-
+    @Schema(description = "Id del Usuario, autogenerado", example = "1")
     private int IdUsuario;
     @Lob
     @Column(name = "imagen")
     private String ImagenFile;
+
     @NotEmpty(message = "Este campo no Puede estar vacio")
     @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
     @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese Solo letras, números y espacios")
@@ -102,6 +151,7 @@ public class Usuario {
 
     @OneToMany(mappedBy = "Usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Valid
+    @Schema(description = "Lista de direcciones de un usuario", example = "[]")
     public List<Direccion> Direcciones;
 
     public Usuario() {
@@ -123,22 +173,6 @@ public class Usuario {
 
     public void setImagenFile(String ImagenFile) {
         this.ImagenFile = ImagenFile;
-    }
-
-    public Rol getRol() {
-        return Rol;
-    }
-
-    public void setRol(Rol rol) {
-        this.Rol = rol;
-    }
-
-    public List<Direccion> getDirecciones() {
-        return Direcciones;
-    }
-
-    public void setDirecciones(List<Direccion> Direcciones) {
-        this.Direcciones = Direcciones;
     }
 
     public int getIdUsuario() {

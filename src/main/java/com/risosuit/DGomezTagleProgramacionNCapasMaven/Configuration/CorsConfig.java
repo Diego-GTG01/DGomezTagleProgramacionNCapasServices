@@ -16,6 +16,9 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://127.0.0.1:8080");
         config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedOrigin("http://192.167.1.25:8080");
+        config.addAllowedOrigin("http://192.167.1.23:8081");
+        config.addAllowedOrigin("http://192.167.1.23:8080");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
         config.addAllowedMethod("PUT");

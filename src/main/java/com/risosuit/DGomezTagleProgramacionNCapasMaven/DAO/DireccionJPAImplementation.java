@@ -86,8 +86,8 @@ public class DireccionJPAImplementation implements IDireccionJPA {
             DireccionJPA.setNumeroExterior(DireccionML.getNumeroExterior());
             DireccionJPA.setNumeroInterior(DireccionML.getNumeroInterior());
             if (DireccionML.Colonia != null && DireccionML.Colonia.getIdColonia() > 0) {
-                Colonia colonia = entityManager.find(Colonia.class, DireccionML.getColonia().getIdColonia());
-                DireccionJPA.setColonia(colonia);
+                Colonia colonia = entityManager.find(Colonia.class, DireccionML.Colonia.getIdColonia());
+                DireccionJPA.Colonia=colonia;
             }
             entityManager.merge(DireccionJPA);
             entityManager.flush();

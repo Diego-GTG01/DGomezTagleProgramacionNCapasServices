@@ -20,11 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Result;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 /**
  *
  * @author ALIEN62
  */
+@Tag(name = "Demo", description = "Operaciones de demostración para ilustrar el uso de Spring Boot")
 @RestController
 @RequestMapping("api/demo")
 public class DemoRestController {

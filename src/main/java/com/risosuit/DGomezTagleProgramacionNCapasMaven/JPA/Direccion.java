@@ -3,6 +3,7 @@ package com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +15,29 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 
+@Schema(description = "Modelo de dirección", example="{" + //
+        "        \"Calle:Avenida San Sebastian ," + //
+        "        \"Colonia: {" +
+        "            \"Municipio\": {\r\n" + //
+        "                \"Estado\": {\r\n" + //
+        "                    \"Pais\": {\r\n" + //
+        "                        \"IdPais\": 1,\r\n" + //
+        "                        \"Nombre\": \"México\"\r\n" + //
+        "                    },\r\n" + //
+        "                    \"IdEstado\": 1,\r\n" + //
+        "                    \"Nombre\": \"México\"\r\n" + //
+        "                },\r\n" + //
+        "                \"IdMunicipio\": 54,\r\n" + //
+        "                \"Nombre\": \"Zumpango\"\r\n" + //
+        "            },\r\n" + //
+        "            \"CodigoPostal\": \"55600\",\r\n" + //
+        "            \"IdColonia\": 8243,\r\n" + //
+        "            \"Nombre\": \"San Sebastián\"\r\n" + //
+        "        },\r\n" + //
+        "        \"IdDireccion\": 4,\r\n" + //
+        "        \"NumeroExterior\": \"17\",\r\n" + //
+        "        \"NumeroInterior\": null\r\n" + //
+        "    }")
 @Entity
 public class Direccion {
     @Id
@@ -90,13 +114,7 @@ public class Direccion {
         this.NumeroInterior = NumeroInterior;
     }
 
-    public Colonia getColonia() {
-        return Colonia;
-    }
-
-    public void setColonia(Colonia Colonia) {
-        this.Colonia = Colonia;
-    }
+    
 
     @Override
     public String toString() {
